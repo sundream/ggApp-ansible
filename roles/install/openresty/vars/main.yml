@@ -1,0 +1,6 @@
+---
+# vars file for openresty
+openresty_name: openresty-{{openresty_ver}}
+openresty_tgz: '{{openresty_name}}.tar.gz'
+openresty_tgz_url: '{{openresty_mirror}}/{{openresty_tgz}}'
+openresty_src_dir: '{{openresty_src_parent_dir}}/{{openresty_name}}'

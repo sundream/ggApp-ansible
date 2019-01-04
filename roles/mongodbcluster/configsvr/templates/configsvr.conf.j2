@@ -1,0 +1,8 @@
+replSet = {{replSet}}
+configsvr = true
+dbpath = {{mongodb_workspace}}/{{inventory_hostname}}/data
+pidfilepath = {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid
+logpath = {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.log
+logappend=true
+fork = true
+port = {{ mongodb_port }}

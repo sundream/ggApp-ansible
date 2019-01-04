@@ -1,0 +1,7 @@
+ubuntu   11684     1  0 16:45 ?        00:00:00 redis-server *:7002 [cluster]
+ubuntu   11685     1  0 16:45 ?        00:00:00 redis-server *:7001 [cluster]
+ubuntu   11686     1  0 16:45 ?        00:00:00 redis-server *:7000 [cluster]
+ubuntu   11690     1  0 16:45 ?        00:00:00 redis-server *:7003 [cluster]
+ubuntu   11772     1  0 16:45 ?        00:00:00 redis-server *:7005 [cluster]
+ubuntu   11773     1  0 16:45 ?        00:00:00 redis-server *:7004 [cluster]
+ubuntu   11811     1  0 16:45 ?        00:00:00 redis-server *:6385

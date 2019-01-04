@@ -1,0 +1,20 @@
+---
+- name: create data directory...
+  file:
+      path: "{{mongodb_workspace}}/{{inventory_hostname}}/data"
+      state: directory
+
+- name: create the configuration...
+  template:
+      src: configsvr.conf.j2
+      dest: "{{mongodb_workspace}}/{{inventory_hostname}}/mongodb.conf"
+
+- name: create js directory...
+  file:
+      path: "{{mongodb_workspace}}/js"
+      state: directory
+
+- name: template initReplSet.js...
+  template:
+      src: js/initReplSet.js.j2
+      dest: "{{mongodb_workspace}}/js/initReplSet_{{replSet}}.js"

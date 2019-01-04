@@ -1,0 +1,5 @@
+---
+python_ver: "2.7.15"
+python_checksum: md5:045fb3440219a1f6923fefdabde63342
+python_mirror: http://www.python.org/ftp/python/{{python_ver}}
+python_src_parent_dir: /usr/local/src

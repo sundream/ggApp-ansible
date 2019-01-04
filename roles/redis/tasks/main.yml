@@ -1,0 +1,10 @@
+---
+- name: create data directory...
+  file:
+      path: "{{redis_workspace}}/{{inventory_hostname}}"
+      state: directory
+
+- name: create the configuration...
+  template:
+      src: redis.conf.j2
+      dest: "{{redis_workspace}}/{{inventory_hostname}}/redis.conf"

@@ -1,0 +1,45 @@
+---
+- name: include platform specific vars
+  include_vars: "{{ansible_os_family}}.yml"
+
+- name: install deps...
+  with_items: "{{dep_pkgs}}"
+  package:
+      name: "{{item}}"
+      state: present
+  become: yes
+  become_user: root
+
+- name: download...
+  get_url:
+      url: "{{redis_tgz_url}}"
+      dest: "{{redis_src_parent_dir}}/{{redis_tgz}}"
+      checksum : "{{redis_checksum}}"
+      mode: 0644
+  become: yes
+  become_user: root
+
+- name: unarchive...
+  unarchive:
+    remote_src: yes
+    src: "{{redis_src_parent_dir}}/{{redis_tgz}}"
+    dest: "{{redis_src_parent_dir}}"
+    creates: "{{redis_src_dir}}"
+  become: yes
+  become_user: root
+
+- name: build...
+  command: make
+  args:
+    chdir: "{{redis_src_dir}}"
+    creates: "{{redis_src_dir}}/src/redis-server"
+  become: yes
+  become_user: root
+
+- name: install...
+  command: make install
+  args:
+    chdir: "{{redis_src_dir}}"
+    creates: /usr/local/bin/redis-server
+  become: yes
+  become_user: root

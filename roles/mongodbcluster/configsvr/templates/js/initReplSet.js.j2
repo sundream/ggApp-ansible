@@ -1,0 +1,5 @@
+rs.initiate()
+{% for host in groups[hostvars[inventory_hostname].replSet] %}
+rs.add("{{ hostvars[host].ansible_host }}:{{ hostvars[host].mongodb_port }}")
+{% endfor %}
+printjson(rs.status())

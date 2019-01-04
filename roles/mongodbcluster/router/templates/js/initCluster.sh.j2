@@ -1,0 +1,12 @@
+#!/bin/sh
+# sh ~/db/mongodb/js/initCluster.sh
+# 建立副本集
+mongo --host {{hostvars["configsvr_1"].ansible_host}} --port {{hostvars["configsvr_1"].mongodb_port}} ~/db/mongodb/js/initReplSet_configsvr.js
+mongo --host {{hostvars["shard0001_1"].ansible_host}} --port {{hostvars["shard0001_1"].mongodb_port}} ~/db/mongodb/js/initReplSet_shard0001.js
+mongo --host {{hostvars["shard0002_1"].ansible_host}} --port {{hostvars["shard0002_1"].mongodb_port}} ~/db/mongodb/js/initReplSet_shard0002.js
+mongo --host {{hostvars["shard0003_1"].ansible_host}} --port {{hostvars["shard0003_1"].mongodb_port}} ~/db/mongodb/js/initReplSet_shard0003.js
+
+# 告知router各个shard的信息
+mongo --host {{hostvars["router_1"].ansible_host}} --port {{hostvars["router_1"].mongodb_port}} ~/db/mongodb/js/addShard.js
+# 配置各个集合的分片规则
+mongo --host {{hostvars["router_1"].ansible_host}} --port {{hostvars["router_1"].mongodb_port}} ~/db/mongodb/js/enableSharding.js

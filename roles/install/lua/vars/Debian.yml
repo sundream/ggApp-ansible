@@ -1,0 +1,3 @@
+---
+dep_pkgs:
+  - libreadline-dev

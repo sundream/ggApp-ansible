@@ -1,0 +1,5 @@
+---
+ggApp_name: ggApp
+ggApp_url: https://github.com/sundream/ggApp
+ggApp_src_parent_dir: "~"
+ggApp_src_dir: "{{ggApp_src_parent_dir}}/{{ggApp_name}}"

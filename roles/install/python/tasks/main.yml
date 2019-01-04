@@ -1,0 +1,42 @@
+---
+- name: download...
+  get_url:
+      url: "{{python_tgz_url}}"
+      dest: "{{python_src_parent_dir}}/{{python_tgz}}"
+      checksum : "{{python_checksum}}"
+      mode: 0644
+  become: yes
+  become_user: root
+
+- name: unarchive...
+  unarchive:
+    remote_src: yes
+    src: "{{python_src_parent_dir}}/{{python_tgz}}"
+    dest: "{{python_src_parent_dir}}"
+    creates: "{{python_src_dir}}"
+  become: yes
+  become_user: root
+
+- name: configure...
+  command: ./configure
+  args:
+    chdir: "{{python_src_dir}}"
+    creates: "{{python_src_dir}}/Makefile"
+  become: yes
+  become_user: root
+
+- name: build...
+  command: make
+  args:
+    chdir: "{{python_src_dir}}"
+    creates: "{{python_src_dir}}/python"
+  become: yes
+  become_user: root
+
+- name: install...
+  command: make install
+  args:
+    chdir: "{{python_src_dir}}"
+    creates: /usr/local/bin/python
+  become: yes
+  become_user: root

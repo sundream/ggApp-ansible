@@ -1,0 +1,4 @@
+{% for host in groups["shard"] %}
+sh.addShard("{{hostvars[host].replSet}}/{{hostvars[host].ansible_host}}:{{hostvars[host].mongodb_port}}")
+{% endfor %}
+printjson(sh.status())

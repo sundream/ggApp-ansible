@@ -1,0 +1,26 @@
+---
+- name: download...
+  get_url:
+      url: "{{mongodb_tgz_url}}"
+      dest: "{{mongodb_src_parent_dir}}/{{mongodb_tgz}}"
+      timeout: 600
+      mode: 0644
+  become: yes
+  become_user: root
+
+- name: unarchive...
+  unarchive:
+    remote_src: yes
+    src: "{{mongodb_src_parent_dir}}/{{mongodb_tgz}}"
+    dest: "{{mongodb_src_parent_dir}}"
+    creates: "{{mongodb_src_dir}}"
+  become: yes
+  become_user: root
+
+- name: install...
+  shell: install bin/* /usr/local/bin
+  args:
+    chdir: "{{mongodb_src_dir}}"
+    creates: /usr/local/bin/mongod
+  become: yes
+  become_user: root

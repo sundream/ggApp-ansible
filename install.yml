@@ -1,0 +1,9 @@
+- hosts: all
+  roles:
+      - install/python
+      - install/openresty
+      - install/lua
+      - install/luarocks
+      - install/redis
+      - install/mongodb
+      - install/ggApp

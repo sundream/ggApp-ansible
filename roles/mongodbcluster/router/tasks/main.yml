@@ -1,0 +1,35 @@
+---
+- name: create data directory...
+  file:
+      path: "{{mongodb_workspace}}/{{inventory_hostname}}/data"
+      state: directory
+
+- name: create the configuration...
+  template:
+      src: router.conf.j2
+      dest: "{{mongodb_workspace}}/{{inventory_hostname}}/mongodb.conf"
+
+- name: create js directory...
+  file:
+      path: "{{mongodb_workspace}}/js"
+      state: directory
+
+- name: template addShard.js...
+  template:
+      src: js/addShard.js.j2
+      dest: "{{mongodb_workspace}}/js/addShard.js"
+
+- name: template enableSharding.js...
+  template:
+      src: js/enableSharding.js.j2
+      dest: "{{mongodb_workspace}}/js/enableSharding.js"
+
+- name: template testSharding.js...
+  template:
+      src: js/testSharding.js.j2
+      dest: "{{mongodb_workspace}}/js/testSharding.js"
+
+- name: template initCluster.sh...
+  template:
+      src: js/initCluster.sh.j2
+      dest: "{{mongodb_workspace}}/js/initCluster.sh"

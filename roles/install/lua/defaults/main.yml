@@ -1,0 +1,6 @@
+---
+lua_ver_major: 5.3
+lua_ver: "{{lua_ver_major}}.5"
+lua_checksum: md5:4f4b4f323fd3514a68e0ab3da8ce3455
+lua_mirror: http://www.lua.org/ftp
+lua_src_parent_dir: /usr/local/src

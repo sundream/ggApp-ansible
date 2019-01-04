@@ -1,0 +1,7 @@
+---
+luarocks_mirror: "http://luarocks.github.io/luarocks/releases"
+luarocks_ver: "3.0.4"
+luarocks_src_parent_dir: "/usr/local/src"
+lua_ver: "5.3"
+luarocks_checksum: "md5:b67be533e0e027a26e3fd2b566ac938f"
+

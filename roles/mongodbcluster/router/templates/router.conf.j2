@@ -1,0 +1,10 @@
+pidfilepath = {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid
+logpath = {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.log
+logappend=true
+fork = true
+port = {{ mongodb_port }}
+{% set hosts = [] %}
+{% for host in groups["configsvr"] %}
+	{{hosts.append(hostvars[host].ansible_host + ":" ~ hostvars[host].mongodb_port)}}
+{% endfor %}
+configdb = configsvr/{{hosts|join(",")}}

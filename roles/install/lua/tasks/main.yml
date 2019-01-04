@@ -1,0 +1,45 @@
+---
+- name: include platform specific vars
+  include_vars: "{{ansible_os_family}}.yml"
+
+- name: install deps...
+  with_items: "{{dep_pkgs}}"
+  package:
+      name: "{{item}}"
+      state: present
+  become: yes
+  become_user: root
+
+- name: download...
+  get_url:
+      url: "{{lua_tgz_url}}"
+      dest: "{{lua_src_parent_dir}}/{{lua_tgz}}"
+      checksum : "{{lua_checksum}}"
+      mode: 0644
+  become: yes
+  become_user: root
+
+- name: unarchive...
+  unarchive:
+    remote_src: yes
+    src: "{{lua_src_parent_dir}}/{{lua_tgz}}"
+    dest: "{{lua_src_parent_dir}}"
+    creates: "{{lua_src_dir}}"
+  become: yes
+  become_user: root
+
+- name: build...
+  command: make linux
+  args:
+    chdir: "{{lua_src_dir}}"
+    creates: "{{lua_src_dir}}/src/lua"
+  become: yes
+  become_user: root
+
+- name: install...
+  command: make install
+  args:
+    chdir: "{{lua_src_dir}}"
+    creates: /usr/local/bin/lua
+  become: yes
+  become_user: root

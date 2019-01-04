@@ -1,0 +1,83 @@
+[all:vars]
+# you can redefine in host
+ansible_host=127.0.0.1
+ansible_ssh_port=22
+home=$HOME
+ggApp="{{home}}/ggApp"
+redis_password="redispwd"
+redis_workspace="{{home}}/db/redis"
+mongodb_workspace="{{home}}/db/mongodb"
+accountcenter_http_port=8887
+gamesrv_tcp_port=8888
+gamesrv_kcp_port=8889
+gamesrv_websocket_port=8890
+gamesrv_debug_port=18888
+serverid=gamesrv_1
+
+# hosts
+[hosts]
+accountcenter
+gamesrv_1
+gamesrv_2 gamesrv_tcp_port=9888 gamesrv_kcp_port=9889 gamesrv_websocket_port=9890 gamesrv_debug_port=19888
+
+redis_1 redis_port=6385
+rediscluster_1 redis_port=7001
+rediscluster_2 redis_port=7002
+rediscluster_3 redis_port=7003
+rediscluster_4 redis_port=7004
+rediscluster_5 redis_port=7005
+rediscluster_6 redis_port=7006
+
+configsvr_1 mongodb_port=28017
+configsvr_2 mongodb_port=28018
+configsvr_3 mongodb_port=28019
+shard0001_1 mongodb_port=27017
+shard0001_2 mongodb_port=27018
+shard0001_3 mongodb_port=27019
+shard0002_1 mongodb_port=27027
+shard0002_2 mongodb_port=27028
+shard0002_3 mongodb_port=27029
+shard0003_1 mongodb_port=27037
+shard0003_2 mongodb_port=27038
+shard0003_3 mongodb_port=27039
+router_1 mongodb_port=29017
+router_2 mongodb_port=29018
+router_3 mongodb_port=29019
+
+# groups
+[gamesrv]
+gamesrv_1
+gamesrv_2
+
+[redis]
+redis_1
+
+[rediscluster]
+rediscluster_[1:6]
+
+[mongodbcluster]
+configsvr_[1:3]
+shard0001_[1:3]
+shard0002_[1:3]
+shard0003_[1:3]
+router_[1:3]
+
+[configsvr]
+configsvr_[1:3] replSet=configsvr
+
+[shard0001]
+shard0001_[1:3] replSet=shard0001
+
+[shard0002]
+shard0002_[1:3] replSet=shard0002
+
+[shard0003]
+shard0003_[1:3] replSet=shard0003
+
+[shard]
+shard0001_[1:3]
+shard0002_[1:3]
+shard0003_[1:3]
+
+[router]
+router_[1:3]

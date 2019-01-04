@@ -1,0 +1,6 @@
+---
+# vars file for python
+python_name: Python-{{python_ver}}
+python_tgz: '{{python_name}}.tgz'
+python_tgz_url: '{{python_mirror}}/{{python_tgz}}'
+python_src_dir: '{{python_src_parent_dir}}/{{python_name}}'

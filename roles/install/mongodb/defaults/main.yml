@@ -1,0 +1,4 @@
+---
+mongodb_ver: 4.0.5
+mongodb_mirror: http://fastdl.mongodb.org/linux
+mongodb_src_parent_dir: /usr/local/src

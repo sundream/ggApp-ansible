@@ -1,0 +1,5 @@
+---
+dependencies:
+    - {role: install/ggApp}
+    - {role: install/lua}
+    - {role: install/luarocks}

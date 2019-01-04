@@ -1,0 +1,5 @@
+---
+redis_ver: 5.0.3
+redis_checksum: md5:aee2e1d0e50f87d6c21abef1c45f9767
+redis_mirror: http://download.redis.io/releases
+redis_src_parent_dir: /usr/local/src

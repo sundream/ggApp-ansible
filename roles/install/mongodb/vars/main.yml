@@ -1,0 +1,6 @@
+---
+# vars file for mongodb
+mongodb_name: mongodb-linux-x86_64-{{mongodb_ver}}
+mongodb_tgz: '{{mongodb_name}}.tgz'
+mongodb_tgz_url: '{{mongodb_mirror}}/{{mongodb_tgz}}'
+mongodb_src_dir: '{{mongodb_src_parent_dir}}/{{mongodb_name}}'

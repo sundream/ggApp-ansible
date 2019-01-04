@@ -1,0 +1,49 @@
+---
+- name: include platform specific vars
+  include_vars: "{{ansible_os_family}}.yml"
+
+- name: install deps...
+  with_items: "{{dep_pkgs}}"
+  package:
+      name: "{{item}}"
+      state: present
+  become: yes
+  become_user: root
+
+- name: download...
+  get_url:
+      url: "{{openresty_tgz_url}}"
+      dest: "{{openresty_src_parent_dir}}/{{openresty_tgz}}"
+      checksum : "{{openresty_checksum}}"
+      mode: 0644
+  become: yes
+  become_user: root
+
+- name: unarchive...
+  unarchive:
+    remote_src: yes
+    src: "{{openresty_src_parent_dir}}/{{openresty_tgz}}"
+    dest: "{{openresty_src_parent_dir}}"
+    creates: "{{openresty_src_dir}}"
+  become: yes
+  become_user: root
+
+- name: configure...
+  command:
+      ./configure
+      --prefix={{openresty_install_dir}}
+      --with-pcre-jit
+      --with-ipv6
+  args:
+    chdir: "{{openresty_src_dir}}"
+    creates: "{{openresty_src_dir}}/Makefile"
+  become: yes
+  become_user: root
+
+- name: make build install...
+  command: make build install
+  args:
+    chdir: "{{openresty_src_dir}}"
+    creates: "{{openresty_install_dir}}/nginx/sbin/nginx"
+  become: yes
+  become_user: root

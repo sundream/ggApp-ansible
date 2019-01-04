@@ -1,0 +1,6 @@
+---
+openresty_ver: 1.13.6.2
+openresty_checksum: md5:d95bc4bbe15e4b045a0593b4ecc0db38
+openresty_mirror: http://www.openresty.org/download
+openresty_src_parent_dir: /usr/local/src
+openresty_install_dir: /usr/local/openresty

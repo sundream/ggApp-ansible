@@ -1,0 +1,18 @@
+---
+- name: include platform specific vars
+  include_vars: "{{ansible_os_family}}.yml"
+
+- name: install deps...
+  with_items: "{{dep_pkgs}}"
+  package:
+      name: "{{item}}"
+      state: present
+  become: yes
+  become_user: root
+
+- name: git clone...
+  command: "git clone --recursive {{ggApp_url}} {{ggApp_name}}"
+  args:
+    chdir: "{{ggApp_src_parent_dir}}"
+    creates: "{{ggApp_src_dir}}"
+

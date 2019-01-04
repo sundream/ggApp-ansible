@@ -1,0 +1,3 @@
+---
+dep_pkgs:
+  - readline-devel

@@ -1,0 +1,4 @@
+---
+dependencies:
+    - {role: install/openresty}
+    - {role: install/ggApp}

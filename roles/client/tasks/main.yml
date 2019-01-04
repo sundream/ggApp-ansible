@@ -1,0 +1,33 @@
+---
+- name: update3rd...
+  shell: make update3rd
+  args:
+    chdir: "{{ggApp}}/client"
+    creates: "{{ggApp}}/client/3rd/lua-cjson"
+
+- name: build...
+  shell: make linux
+  args:
+    chdir: "{{ggApp}}/client"
+    creates: "{{ggApp}}/client/luaclib/cjson.so"
+
+- name: luarocks install luasocket
+  shell: luarocks install luasocket
+  args:
+      creates: "/usr/local/lib/lua/{{lua_ver_major}}/socket/core.so"
+  become: yes
+  become_user: root
+
+- name: luarocks install lpeg
+  shell: luarocks install lpeg
+  args:
+      creates: "/usr/local/lib/lua/{{lua_ver_major}}/lpeg.so"
+  become: yes
+  become_user: root
+
+- name: luarocks install ldoc
+  shell: luarocks install ldoc
+  args:
+      creates: "/usr/local/share/lua/{{lua_ver_major}}/ldoc"
+  become: yes
+  become_user: root

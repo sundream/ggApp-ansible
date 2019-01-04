@@ -1,0 +1,5 @@
+---
+luarocks_name: "luarocks-{{luarocks_ver}}"
+luarocks_tgz: "{{luarocks_name}}.tar.gz"
+luarocks_url: "{{luarocks_mirror}}/{{luarocks_tgz}}"
+luarocks_src: "{{luarocks_src_parent_dir}}/{{luarocks_name}}"
