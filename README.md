@@ -1,6 +1,6 @@
 ggApp-ansible
 =============
-ggApp-ansible是[ggApp](https://github.com/sundream/ggApp)的ansible配置示例,可以利用[ansible](https://www.ansible.com)快速部署服务器
+ggApp-ansible是[ggApp](https://github.com/sundream/ggApp)的ansible配置示例,可以利用[ansible](https://github.com/ansible/ansible)快速部署服务器
 
 Table of Contents
 ================
@@ -14,9 +14,9 @@ Table of Contents
 
 已测试环境
 =========
-Ubuntu-18.04.1
-Ubuntu-16.04.5
-Centos-7.5
+* Ubuntu-18.04.1
+* Ubuntu-16.04.5
+* Centos-7.5
 
 安装ansible
 ===========
@@ -48,7 +48,7 @@ pip install ansible
 	cd ~/ggApp-ansible
 	# 免密登录
 	ssh-keygen
-	ssh-copy-id -i ~/.ssh/id_rsa.pub $HOME@127.0.0.1
+	ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@127.0.0.1
 	# 提前安装软件,防止一键部署出错
 	ansible-playbook -i hosts.machine --limit localhost install.yml -e home=$HOME -K
 	# 一键部署(默认部署的serverid为gamesrv_1,你也可以通过-e serverid=gamesrv_xxx来部署其他服务器)
