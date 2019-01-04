@@ -1,4 +1,10 @@
 ---
+- name: mkdir log...
+  command: mkdir -p log
+  args:
+    chdir: "{{ggApp}}/robot"
+    creates: "{{ggApp}}/robot/log"
+
 - name: update3rd...
   shell: make update3rd
   args:

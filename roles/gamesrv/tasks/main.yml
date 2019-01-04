@@ -1,11 +1,11 @@
 ---
-- name: mkdir log in gamesrv...
+- name: mkdir log...
   command: mkdir -p log
   args:
     chdir: "{{ggApp}}/gamesrv"
     creates: "{{ggApp}}/gamesrv/log"
 
-- name: build gamesrv...
+- name: build...
   command: make linux
   args:
     chdir: "{{ggApp}}/gamesrv"
