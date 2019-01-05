@@ -118,7 +118,7 @@ ansible redis -i hosts -m shell -a "cat {{redis_workspace}}/{{inventory_hostname
 # 启动
 ansible rediscluster -i hosts -m shell -a "redis-server {{redis_workspace}}/{{inventory_hostname}}/redis.conf"
 # 如果是首次启动,需要初始化redis集群,ip有变化可以修改127.0.0.1
-redis-cli --cluster create 127.0.0.1:7001 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 127.0.0.1:7006 --cluster-replicas 1
+redis-cli --cluster create 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 127.0.0.1:7006 --cluster-replicas 1
 # 关闭
 ansible rediscluster -i hosts -m shell -a "redis-cli -p {{redis_port}} -a {{redis_password}} shutdown"
 # 查看启动状态
