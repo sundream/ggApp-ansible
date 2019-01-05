@@ -42,19 +42,19 @@ pip install ansible
 部署
 ====
 ```
-	# 暂时不支持macos下自动部署,ubuntu18.14.1/centos下测试通过
-	cd ~
-	git clone https://github.com/sundream/ggApp-ansible
-	cd ~/ggApp-ansible
-	# 免密登录
-	ssh-keygen
-	ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@127.0.0.1
-	# 提前安装软件,防止一键部署出错
-	ansible-playbook -i hosts.machine --limit localhost install.yml -e home=$HOME -K
-	# 一键部署(默认部署的serverid为gamesrv_1,你也可以通过-e serverid=gamesrv_xxx来部署其他服务器)
-	ansible-playbook -i hosts deploy.yml -e home=$HOME -K
-	# 部署指定tag
-	# ansible-playbook -i hosts deploy.yml -e home=$HOME -K --tags TAG1,TAG2
+# 暂时不支持macos下自动部署,ubuntu18.14.1/centos下测试通过
+cd ~
+git clone https://github.com/sundream/ggApp-ansible
+cd ~/ggApp-ansible
+# 免密登录
+ssh-keygen
+ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@127.0.0.1
+# 提前安装软件,防止一键部署出错
+ansible-playbook -i hosts.machine --limit localhost install.yml -e home=$HOME -K
+# 一键部署(默认部署的serverid为gamesrv_1,你也可以通过-e serverid=gamesrv_xxx来部署其他服务器)
+ansible-playbook -i hosts deploy.yml -e home=$HOME -K
+# 部署指定tag
+# ansible-playbook -i hosts deploy.yml -e home=$HOME -K --tags TAG1,TAG2
 ```
 部署完后会在本机生成如下目录
 ```
@@ -123,8 +123,9 @@ redis-cli --cluster create 127.0.0.1:7001 127.0.0.1:7001 127.0.0.1:7002 127.0.0.
 ansible rediscluster -i hosts -m shell -a "redis-cli -p {{redis_port}} -a {{redis_password}} shutdown"
 # 查看启动状态
 ansible rediscluster -i hosts -m shell -a "cat {{redis_workspace}}/{{inventory_hostname}}/redis.pid | xargs ps -cp"
-# rediscluster正常启动后进程信息见[redis_process.txt](https://github.com/sundream/ggApp-ansible/redis_process.txt)
 ```
+rediscluster正常启动后进程信息大致如[redis_process.txt](https://github.com/sundream/ggApp-ansible/blob/master/redis_process.txt)
+
 * 管理mongodbcluster
 ```
 # 启动configsvr(启动可能需要一段时间,最好等待>10s)
@@ -151,8 +152,9 @@ ansible router_1 -i hosts -m shell -a "mongo --port {{mongodb_port}} {{mongodb_w
 ansible mongodbcluster -i hosts -m shell -a "cat {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid | xargs kill -2"
 # 查看启动状态
 ansible mongodbcluster -i hosts -m shell -a "cat {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid | xargs ps -cp"
-# mongodbcluster正常启动后进程信息见[mongodb_process.txt](https://github.com/sundream/ggApp-ansible/mongodb_process.txt)
 ```
+mongodbcluster正常启动后进程信息大致如[mongodb_process.txt](https://github.com/sundream/ggApp-ansible/blob/master/mongodb_process.txt)
+
 * 管理accountcenter
 ```
 # 启动
@@ -178,7 +180,6 @@ ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh kill.sh
 ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh status.sh"
 # 执行gm
 ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh gm.sh 0 exec 'return 1+1'"
-#ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh gm.sh 0 exec 'return \"hello,world!\"'"
 ```
 
 [Back to TOC](#table-of-contents)
