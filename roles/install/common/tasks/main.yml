@@ -1,0 +1,8 @@
+---
+- name: install deps...
+  with_items: "{{dep_pkgs}}"
+  package:
+      name: "{{item}}"
+      state: present
+  become: yes
+  become_user: root

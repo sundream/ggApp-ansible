@@ -1,0 +1,15 @@
+---
+dep_pkgs:
+    - wget
+    - curl
+    - tar
+    - gzip
+    - zip
+    - unzip
+    - gcc
+    - make
+    - cmake
+    - git
+    - subversion
+    - protobuf-compiler
+    - protobuf-c-compiler

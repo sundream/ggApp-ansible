@@ -1,5 +1,6 @@
 - hosts: all
   roles:
+      - install/common
       - install/python
       - install/openresty
       - install/lua
