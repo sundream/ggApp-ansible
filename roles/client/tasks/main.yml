@@ -12,21 +12,21 @@
     creates: "{{ggApp}}/client/luaclib/cjson.so"
 
 - name: luarocks install luasocket
-  shell: luarocks install luasocket
+  command: luarocks install luasocket
   args:
       creates: "/usr/local/lib/lua/{{lua_ver_major}}/socket/core.so"
   become: yes
   become_user: root
 
 - name: luarocks install lpeg
-  shell: luarocks install lpeg
+  command: luarocks install lpeg
   args:
       creates: "/usr/local/lib/lua/{{lua_ver_major}}/lpeg.so"
   become: yes
   become_user: root
 
 - name: luarocks install ldoc
-  shell: luarocks install ldoc
+  command: luarocks install ldoc
   args:
       creates: "/usr/local/share/lua/{{lua_ver_major}}/ldoc"
   become: yes
