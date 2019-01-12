@@ -10,6 +10,7 @@ Table of Contents
 * [安装ansible](#安装ansible)
 * [部署ggApp](#部署)
 * [管理ggApp](#管理)
+* [打包+发布](#打包+发布)
 
 
 已测试环境
@@ -49,12 +50,14 @@ cd ~/ggApp-ansible
 # 免密登录
 ssh-keygen
 ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@127.0.0.1
-# 提前安装软件,防止一键部署出错
-ansible-playbook -i hosts.machine --limit localhost install.yml -e home=$HOME -K
-# 一键部署(默认部署的serverid为gamesrv_1,你也可以通过-e serverid=gamesrv_xxx来部署其他服务器)
-ansible-playbook -i hosts deploy.yml -e home=$HOME -K
-# 部署指定tag
-# ansible-playbook -i hosts deploy.yml -e home=$HOME -K --tags TAG1,TAG2
+# 提前安装所有依赖软件/库
+ansible-playbook -i hosts/server.local --limit gamesrv_1 install.yml -e home=$HOME -K
+# 部署rediscluster
+ansible-playbook -i hosts/redis.local deploy_rediscluster.yml -e home=$HOME -K
+# 部署mongodbcluster
+ansible-playbook -i hosts/mongodb.local deploy_mongodbcluster.yml -e home=$HOME -K
+# 部署ggApp
+ansible-playbook -i hosts/server.local --limit accountcenter,gamesrv_1 deploy_ggApp.yml -e home=$HOME -K
 ```
 部署完后会在本机生成如下目录
 ```
@@ -107,79 +110,120 @@ luarocks --version
 * 管理redis独立节点(账号中心用)
 ```
 # 启动
-ansible redis -i hosts -m shell -a "redis-server {{redis_workspace}}/{{inventory_hostname}}/redis.conf"
+ansible redis -i hosts/redis.local -m shell -a "redis-server {{redis_workspace}}/{{inventory_hostname}}/redis.conf"
 # 关闭
-ansible redis -i hosts -m shell -a "redis-cli -p {{redis_port}} -a {{redis_password}} shutdown"
+ansible redis -i hosts/redis.local -m shell -a "redis-cli -p {{redis_port}} -a {{redis_password}} shutdown"
 # 查看启动状态
-ansible redis -i hosts -m shell -a "cat {{redis_workspace}}/{{inventory_hostname}}/redis.pid | xargs ps -cp"
+ansible redis -i hosts/redis.local -m shell -a "cat {{redis_workspace}}/{{inventory_hostname}}/redis.pid | xargs ps -cp"
 ```
 * 管理rediscluster
 ```
 # 启动
-ansible rediscluster -i hosts -m shell -a "redis-server {{redis_workspace}}/{{inventory_hostname}}/redis.conf"
+ansible rediscluster -i hosts/redis.local -m shell -a "redis-server {{redis_workspace}}/{{inventory_hostname}}/redis.conf"
 # 如果是首次启动,需要初始化redis集群,ip有变化可以修改127.0.0.1
 redis-cli --cluster create 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 127.0.0.1:7006 --cluster-replicas 1
 # 关闭
-ansible rediscluster -i hosts -m shell -a "redis-cli -p {{redis_port}} -a {{redis_password}} shutdown"
+ansible rediscluster -i hosts/redis.local -m shell -a "redis-cli -p {{redis_port}} -a {{redis_password}} shutdown"
 # 查看启动状态
-ansible rediscluster -i hosts -m shell -a "cat {{redis_workspace}}/{{inventory_hostname}}/redis.pid | xargs ps -cp"
+ansible rediscluster -i hosts/redis.local -m shell -a "cat {{redis_workspace}}/{{inventory_hostname}}/redis.pid | xargs ps -cp"
 ```
 rediscluster正常启动后进程信息大致如[redis_process.txt](https://github.com/sundream/ggApp-ansible/blob/master/redis_process.txt)
 
 * 管理mongodbcluster
 ```
 # 启动configsvr(启动可能需要一段时间,最好等待>10s)
-ansible configsvr -i hosts -m shell -a "mongod -f {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.conf &"
+ansible configsvr -i hosts/mongodb.local -m shell -a "mongod -f {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.conf &"
 # 启动shard(启动可能需要一段时间,最好等待>30s)
-ansible shard -i hosts -m shell -a "mongod -f {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.conf &"
+ansible shard -i hosts/mongodb.local -m shell -a "mongod -f {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.conf &"
 # 启动router(启动可能需要一段时间,最好等待>10s)
-ansible router -i hosts -m shell -a "mongos -f {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.conf &"
+ansible router -i hosts/mongodb.local -m shell -a "mongos -f {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.conf &"
 # 如果是首次启动,需要初始化mongo集群
-# 快速初始化集群
-ansible router_1 -i hosts -m shell -a "sh ~/db/mongodb/js/initCluster.sh"
+# 快速初始化集群(可能需要尝试多次)
+ansible router_1 -i hosts/mongodb.local -m shell -a "sh ~/db/mongodb/js/initCluster.sh"
 # 也可以分步初始化集群,如下:
 	# 初始化configsvr副本集
-	ansible configsvr_1 -i hosts -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/initReplSet_{{replSet}}.js"
+	ansible configsvr_1 -i hosts/mongodb.local -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/initReplSet_{{replSet}}.js"
 	# 初始化shard副本集(可能要执行多次确保副本集初始化成功)
-	ansible shard0001_1:shard0002_1:shard0003_1 -i hosts -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/initReplSet_{{replSet}}.js"
+	ansible shard0001_1:shard0002_1:shard0003_1 -i hosts/mongodb.local -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/initReplSet_{{replSet}}.js"
 	# 向router添加shard
-	ansible router_1 -i hosts -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/addShard.js"
+	ansible router_1 -i hosts/mongodb.local -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/addShard.js"
 	# 开启分片
-	ansible router_1 -i hosts -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/enableSharding.js"
+	ansible router_1 -i hosts/mongodb.local -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/enableSharding.js"
 # 测试分片(执行需要一段时间,最好等待>=30s)
-ansible router_1 -i hosts -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/testSharding.js"
+ansible router_1 -i hosts/mongodb.local -m shell -a "mongo --port {{mongodb_port}} {{mongodb_workspace}}/js/testSharding.js"
 # 关闭(关闭可能需要一段时间,最好等待>=30s)
-ansible mongodbcluster -i hosts -m shell -a "cat {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid | xargs kill -2"
+ansible mongodbcluster -i hosts/mongodb.local -m shell -a "cat {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid | xargs kill -2"
 # 查看启动状态
-ansible mongodbcluster -i hosts -m shell -a "cat {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid | xargs ps -cp"
+ansible mongodbcluster -i hosts/mongodb.local -m shell -a "cat {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid | xargs ps -cp"
 ```
 mongodbcluster正常启动后进程信息大致如[mongodb_process.txt](https://github.com/sundream/ggApp-ansible/blob/master/mongodb_process.txt)
 
 * 管理accountcenter
 ```
 # 启动
-ansible accountcenter -i hosts -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . &"
+ansible accountcenter -i hosts/server.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . &"
 # 导入游戏服务器信息
-ansible accountcenter -i hosts -m shell -a "cd ~/ggApp/tools/script && python import_servers.py --appid=appid --config=servers.config"
+ansible accountcenter -i hosts/server.local -m shell -a "cd ~/ggApp/tools/script && python import_servers.py --appid=appid --config=servers.config"
 # 关闭
-ansible accountcenter -i hosts -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s stop"
+ansible accountcenter -i hosts/server.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s stop"
 # 重新加载
-ansible accountcenter -i hosts -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
+ansible accountcenter -i hosts/server.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
 ```
 * 管理gamesrv
 ```
 # 启动
-ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh start.sh"
+ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh start.sh"
 # 关闭
-ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh stop.sh"
+ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh stop.sh"
 # 重新启动
-ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh restart.sh"
+ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh restart.sh"
 # 强制关闭(非安全关闭)
-ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh kill.sh"
+ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh kill.sh"
 # 查看启动状态
-ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh status.sh"
+ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh status.sh"
 # 执行gm
-ansible gamesrv_1 -i hosts -m shell -a "cd ~/ggApp/gamesrv_1/shell && sh gm.sh 0 exec 'return 1+1'"
+ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh gm.sh 0 exec 'return 1+1'"
+```
+
+* 打包+发布
+```
+# 打包前先更新代码！！！
+# 打整包
+# 查看帮助
+sh shell/pack.sh -?
+# 对游戏服打整包
+sh shell/pack.sh ~/ggApp/gamesrv
+# 对账号中心打整包
+sh shell/pack.sh ~/ggApp/accountcenter
+# 执行shell/packpatch.sh后会提示生成的包名
+# 假定hosts/server.test中定义了外网测试环境所有服务器
+# 发布到所有游戏服
+ansible-playbook -i hosts/server.test --limit gamesrv publish.yml -e packname=包名
+# 发布到gamesrv_50,gamesrv_51服
+ansible-playbook -i hosts/server.test --limit gamesrv_50,gamesrv_51 publish.yml -e packname=包名
+# 发布到账号中心
+ansible-playbook -i hosts/server.test --limit accountcenter publish.yml -e packname=包名
+
+# 打补丁包
+# 查看帮助
+sh shell/packpatch.sh -?
+# 仓库是git管理
+# 对游戏服最近2次提交生成补丁包
+sh shell/packpatch.sh ~/ggApp/gamesrv HEAD~2..HEAD
+# 对账号中心最近2次提交生成补丁包
+sh shell/packpatch.sh ~/ggApp/accountcenter HEAD~2..HEAD
+# 仓库是svn管理
+# 对游戏服[530,532]之间提交生成补丁包
+sh shell/packpatch.sh -s ~/ggApp/gamesrv 530:532
+# 对账号中心[530,532]之间提交生成补丁包
+sh shell/packpatch.sh -s ~/ggApp/accountcenter 530:532
+# 执行shell/packpatch.sh后会提示生成的补丁包名
+# 向游戏服发布补丁包并自动热更
+ansible-playbook -i hosts/server.test --limit gamesrv publish.yml -e hotfix=true -e packname=补丁包名
+# 向账号中心发布补丁包
+ansible-playbook -i hosts/server.test --limit accountcenter publish.yml -e packname=补丁包名 
+# 让账号中心热更
+ansible accountcenter -i hosts/server.test -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
 ```
 
 [Back to TOC](#table-of-contents)

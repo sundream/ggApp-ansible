@@ -1,0 +1,23 @@
+[all:vars]
+# you can redefine in host
+ansible_host=127.0.0.1
+ansible_ssh_port=22
+home=$HOME
+redis_password="redispwd"
+redis_workspace="{{home}}/db/redis"
+
+[hosts]
+redis_1 redis_port=6385
+rediscluster_1 redis_port=7001
+rediscluster_2 redis_port=7002
+rediscluster_3 redis_port=7003
+rediscluster_4 redis_port=7004
+rediscluster_5 redis_port=7005
+rediscluster_6 redis_port=7006
+
+# groups
+[redis]
+redis_1
+
+[rediscluster]
+rediscluster_[1:6]

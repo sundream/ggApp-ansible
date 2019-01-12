@@ -1,18 +1,21 @@
 ---
+- name: link with {{inventory_hostname}}
+  command: ln -s gamesrv {{inventory_hostname}}
+  args:
+      chdir: "{{ggApp_workspace}}"
+      creates: "{{ggApp_workspace}}/{{inventory_hostname}}"
+  when: ansible_host == "127.0.0.1"
+
 - name: mkdir log...
   command: mkdir -p log
   args:
-    chdir: "{{ggApp}}/gamesrv"
-    creates: "{{ggApp}}/gamesrv/log"
+    chdir: "{{ggApp_workspace}}/{{inventory_hostname}}"
+    creates: "{{ggApp_workspace}}/{{inventory_hostname}}/log"
 
 - name: build...
   command: make linux
   args:
-    chdir: "{{ggApp}}/gamesrv"
-    creates: "{{ggApp}}/gamesrv/skynet/skynet"
+    chdir: "{{ggApp_workspace}}/{{inventory_hostname}}"
+    creates: "{{ggApp_workspace}}/{{inventory_hostname}}/skynet/skynet"
 
-- name: link with {{inventory_hostname}}
-  command: ln -s gamesrv {{inventory_hostname}}
-  args:
-      chdir: "{{ggApp}}"
-      creates: "{{ggApp}}/{{inventory_hostname}}"
+

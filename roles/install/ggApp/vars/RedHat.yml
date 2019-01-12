@@ -1,5 +1,0 @@
----
-dep_pkgs:
-    # skynet
-    - autoconf
-    - readline-devel

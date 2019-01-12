@@ -7,4 +7,3 @@
       - install/luarocks
       - install/redis
       - install/mongodb
-      - install/ggApp

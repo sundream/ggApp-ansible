@@ -1,0 +1,21 @@
+---
+dep_pkgs:
+    - wget
+    - curl
+    - tar
+    - gzip
+    - zip
+    - unzip
+    - gcc
+    - make
+    - cmake
+    - git
+    - subversion
+    - protobuf-compiler
+    - protobuf-c-compiler
+    - telnet
+    - netcat
+    - libcurl4-openssl-dev
+    # skynet
+    - autoconf
+    - libreadline-dev

@@ -1,4 +1,0 @@
-[hosts]
-localhost ansible_host=127.0.0.1
-#devhost ansible_host=172.16.100.127
-#testhost ansible_host=111.230.108.129

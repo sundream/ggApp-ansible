@@ -2,17 +2,17 @@
 - name: mkdir log...
   command: mkdir -p log
   args:
-    chdir: "{{ggApp}}/robot"
-    creates: "{{ggApp}}/robot/log"
+    chdir: "{{ggApp_workspace}}/robot"
+    creates: "{{ggApp_workspace}}/robot/log"
 
 - name: update3rd...
   shell: make update3rd
   args:
-    chdir: "{{ggApp}}/robot"
-    creates: "{{ggApp}}/robot/3rd/lua-cjson"
+    chdir: "{{ggApp_workspace}}/robot"
+    creates: "{{ggApp_workspace}}/robot/3rd/lua-cjson"
 
 - name: build...
   shell: make linux
   args:
-    chdir: "{{ggApp}}/robot"
-    creates: "{{ggApp}}/robot/3rd/skynet/skynet"
+    chdir: "{{ggApp_workspace}}/robot"
+    creates: "{{ggApp_workspace}}/robot/3rd/skynet/skynet"

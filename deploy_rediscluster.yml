@@ -1,0 +1,14 @@
+---
+- hosts: redis
+  roles:
+      - redis
+  tags:
+      - redis
+
+- hosts: rediscluster
+  roles:
+      - rediscluster
+  tags:
+      - rediscluster
+
+

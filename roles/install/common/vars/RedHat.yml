@@ -13,3 +13,9 @@ dep_pkgs:
     - subversion
     - protobuf-compiler
     - protobuf-c-compiler
+    - telnet
+    - nc
+    - libcurl-devel
+    # skynet
+    - autoconf
+    - readline-devel

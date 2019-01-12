@@ -1,0 +1,29 @@
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    hotfix: false
+    workdir: ~/ggApp
+  tasks:
+    - name: copy...
+      copy:
+          src: "/tmp/{{packname}}"
+          dest: "/tmp/{{packname}}"
+          mode: 0644
+
+    - name: try create {{workdir}}/{{inventory_hostname}}
+      command: mkdir -p {{workdir}}/{{inventory_hostname}}
+      args:
+          creates: "{{workdir}}/{{inventory_hostname}}"
+
+    - name: unarchive...
+      unarchive:
+          remote_src: yes
+          src: "/tmp/{{packname}}"
+          dest: "{{workdir}}/{{inventory_hostname}}"
+
+    - name: hotfix...
+      shell: "tar -tf /tmp/{{packname}} | xargs sh gm.sh 0 hotfix"
+      args:
+          chdir: "{{workdir}}/{{inventory_hostname}}/shell"
+      when: hotfix

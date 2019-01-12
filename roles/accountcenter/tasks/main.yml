@@ -7,5 +7,5 @@
 - name: mkdir logs in accountcenter...
   command: mkdir -p logs
   args:
-    chdir: "{{ggApp}}/accountcenter"
-    creates: "{{ggApp}}/accountcenter/logs"
+    chdir: "{{ggApp_workspace}}/accountcenter"
+    creates: "{{ggApp_workspace}}/accountcenter/logs"

@@ -1,0 +1,23 @@
+---
+- hosts: configsvr
+  roles:
+      - mongodbcluster/configsvr
+  tags:
+      - configsvr
+      - mongodbcluster
+
+- hosts: shard
+  roles:
+      - mongodbcluster/shard
+  tags:
+      - shard
+      - mongodbcluster
+
+- hosts: router
+  roles:
+      - mongodbcluster/router
+  tags:
+      - router
+      - mongodbcluster
+
+

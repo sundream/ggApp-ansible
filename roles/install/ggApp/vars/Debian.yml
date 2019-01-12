@@ -1,6 +1,0 @@
----
-dep_pkgs:
-    # skynet
-    - autoconf
-    - libreadline-dev
-
