@@ -4,9 +4,3 @@
       - accountcenter
   tags:
       - accountcenter
-
-- hosts: gamesrv
-  roles:
-      - gamesrv
-  tags:
-      - gamesrv

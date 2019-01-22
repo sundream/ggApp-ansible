@@ -1,7 +1,6 @@
 # 外网测试环境服务器
 # hosts
 [hosts]
-accountcenter ansible_host=111.230.108.129
 gamesrv_50 ansible_host=111.230.108.129
 gamesrv_51 ansible_host=111.230.108.129
 

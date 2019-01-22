@@ -10,7 +10,7 @@ Table of Contents
 * [安装ansible](#安装ansible)
 * [部署ggApp](#部署)
 * [管理ggApp](#管理)
-* [打包+发布](#打包+发布)
+* [打包和发布](#打包和发布)
 
 
 已测试环境
@@ -29,6 +29,8 @@ sudo apt-add-repository ppa:ansible/ansible
 sudo apt update
 sudo apt install ansible
 # 使用pip安装
+sudo apt install python
+sudo apt install python-pip
 pip install ansible
 ```
 * centos
@@ -51,13 +53,15 @@ cd ~/ggApp-ansible
 ssh-keygen
 ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@127.0.0.1
 # 提前安装所有依赖软件/库
-ansible-playbook -i hosts/server.local --limit gamesrv_1 install.yml -e home=$HOME -K
+ansible-playbook -i hosts/gamesrv.local --limit gamesrv_1 install.yml -e home=$HOME -K
 # 部署rediscluster
 ansible-playbook -i hosts/redis.local deploy_rediscluster.yml -e home=$HOME -K
 # 部署mongodbcluster
 ansible-playbook -i hosts/mongodb.local deploy_mongodbcluster.yml -e home=$HOME -K
-# 部署ggApp
-ansible-playbook -i hosts/server.local --limit accountcenter,gamesrv_1 deploy_ggApp.yml -e home=$HOME -K
+# 部署accountcenter
+ansible-playbook -i hosts/accountcenter.local --limit accountcenter deploy_accountcenter.yml -e home=$HOME -K
+# 部署gamesrv
+ansible-playbook -i hosts/gamesrv.local --limit gamesrv_1 deploy_gamesrv.yml -e home=$HOME -K
 ```
 部署完后会在本机生成如下目录
 ```
@@ -161,52 +165,54 @@ mongodbcluster正常启动后进程信息大致如[mongodb_process.txt](https://
 * 管理accountcenter
 ```
 # 启动
-ansible accountcenter -i hosts/server.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . &"
+ansible accountcenter -i hosts/accountcenter.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . &"
 # 导入游戏服务器信息
-ansible accountcenter -i hosts/server.local -m shell -a "cd ~/ggApp/tools/script && python import_servers.py --appid=appid --config=servers.config"
+ansible accountcenter -i hosts/accountcenter.local -m shell -a "cd ~/ggApp/tools/script && python import_servers.py --appid=appid --config=servers.config"
 # 关闭
-ansible accountcenter -i hosts/server.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s stop"
+ansible accountcenter -i hosts/accountcenter.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s stop"
 # 重新加载
-ansible accountcenter -i hosts/server.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
+ansible accountcenter -i hosts/accountcenter.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
 ```
 * 管理gamesrv
 ```
 # 启动
-ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh start.sh"
+ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh start.sh"
 # 关闭
-ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh stop.sh"
+ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh stop.sh"
 # 重新启动
-ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh restart.sh"
+ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh restart.sh"
 # 强制关闭(非安全关闭)
-ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh kill.sh"
+ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh kill.sh"
 # 查看启动状态
-ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh status.sh"
+ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh status.sh"
 # 执行gm
-ansible gamesrv_1 -i hosts/server.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh gm.sh 0 exec 'return 1+1'"
+ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh gm.sh 0 exec 'return 1+1'"
 ```
 
-* 打包+发布
+打包和发布
+==========
 ```
 # 打包前先更新代码！！！
 # 打整包
 # 查看帮助
-sh shell/pack.sh -?
-# 对游戏服打整包
-sh shell/pack.sh ~/ggApp/gamesrv
+sh shell/pack.sh
 # 对账号中心打整包
 sh shell/pack.sh ~/ggApp/accountcenter
-# 执行shell/packpatch.sh后会提示生成的包名
-# 假定hosts/server.test中定义了外网测试环境所有服务器
-# 发布到所有游戏服
-ansible-playbook -i hosts/server.test --limit gamesrv publish.yml -e packname=包名
-# 发布到gamesrv_50,gamesrv_51服
-ansible-playbook -i hosts/server.test --limit gamesrv_50,gamesrv_51 publish.yml -e packname=包名
+# 执行shell/pack.sh后会提示生成的包名
 # 发布到账号中心
-ansible-playbook -i hosts/server.test --limit accountcenter publish.yml -e packname=包名
+ansible-playbook -i hosts/accountcenter.test --limit accountcenter publish.yml -e packname=包名
+
+# 对游戏服打整包
+sh shell/pack.sh ~/ggApp/gamesrv
+# 执行shell/pack.sh后会提示生成的包名
+# 发布到所有游戏服
+ansible-playbook -i hosts/gamesrv.test --limit gamesrv publish.yml -e packname=包名
+# 发布到gamesrv_50,gamesrv_51服
+ansible-playbook -i hosts/gamesrv.test --limit gamesrv_50,gamesrv_51 publish.yml -e packname=包名
 
 # 打补丁包
 # 查看帮助
-sh shell/packpatch.sh -?
+sh shell/packpatch.sh
 # 仓库是git管理
 # 对游戏服最近2次提交生成补丁包
 sh shell/packpatch.sh ~/ggApp/gamesrv HEAD~2..HEAD
@@ -219,11 +225,11 @@ sh shell/packpatch.sh -s ~/ggApp/gamesrv 530:532
 sh shell/packpatch.sh -s ~/ggApp/accountcenter 530:532
 # 执行shell/packpatch.sh后会提示生成的补丁包名
 # 向游戏服发布补丁包并自动热更
-ansible-playbook -i hosts/server.test --limit gamesrv publish.yml -e hotfix=true -e packname=补丁包名
+ansible-playbook -i hosts/gamesrv.test --limit gamesrv publish.yml -e hotfix=true -e packname=补丁包名
 # 向账号中心发布补丁包
-ansible-playbook -i hosts/server.test --limit accountcenter publish.yml -e packname=补丁包名 
+ansible-playbook -i hosts/accountcenter.test --limit accountcenter publish.yml -e packname=补丁包名 
 # 让账号中心热更
-ansible accountcenter -i hosts/server.test -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
+ansible accountcenter -i hosts/accountcenter.test -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
 ```
 
 [Back to TOC](#table-of-contents)

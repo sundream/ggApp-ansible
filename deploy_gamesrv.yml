@@ -1,0 +1,6 @@
+---
+- hosts: gamesrv
+  roles:
+      - gamesrv
+  tags:
+      - gamesrv

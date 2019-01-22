@@ -6,7 +6,6 @@ home=$HOME
 appName="ggApp"
 ggApp_url=https://github.com/sundream/ggApp
 ggApp_workspace="{{home}}/{{appName}}"
-accountcenter_http_port=8887
 gamesrv_tcp_port=8888
 gamesrv_kcp_port=8889
 gamesrv_websocket_port=8890
@@ -14,7 +13,6 @@ gamesrv_debug_port=18888
 
 # hosts
 [hosts]
-accountcenter
 gamesrv_1
 gamesrv_2
 

@@ -1,12 +1,12 @@
 #!/bin/sh
-usage="Usage:
+usage="Usage:\n
 	sh shell/pack.sh <path> [packname]\n
 	e.g:\n
 		sh shell/pack.sh .\n
 		sh shell/pack.sh ~/ggApp/gamesrv"
 
 if [ $# -lt 1 ]; then
-	echo $usage
+	echo -e $usage
 	exit 0;
 fi
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-usage="Usage:
+usage="Usage:\n
 	sh shell/packpatch.sh <path> <revision range> [packname]\n
 	e.g:\n
 		# default consider repository is git\n
@@ -13,13 +13,13 @@ while getopts s opt; do
 	s)
 		is_git=0;;
 	[?])
-		echo $usage
+		echo -e $usage
 		exit 0;;
 	esac
 done
 shift $((OPTIND-1))
 if [ $# -lt 2 ]; then
-	echo $usage
+	echo -e $usage
 	exit 0;
 fi
 
