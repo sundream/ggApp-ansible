@@ -46,12 +46,11 @@ pip install ansible
 ====
 ```
 # 暂时不支持macos下自动部署,ubuntu18.14.1/centos下测试通过
-cd ~
-git clone https://github.com/sundream/ggApp-ansible
-cd ~/ggApp-ansible
 # 免密登录
-ssh-keygen
-ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@127.0.0.1
+ssh-keygen   #一路按回车跳过
+ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@127.0.0.1  #中途需要输入用户密码
+cd ~ && git clone https://github.com/sundream/ggApp-ansible
+cd ~/ggApp-ansible
 # 提前安装所有依赖软件/库
 ansible-playbook -i hosts/gamesrv.local --limit gamesrv_1 install.yml -e home=$HOME -K
 # 部署rediscluster
