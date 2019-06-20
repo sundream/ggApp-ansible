@@ -1,0 +1,6 @@
+---
+- hosts: gameserver
+  roles:
+      - gameserver
+  tags:
+      - gameserver

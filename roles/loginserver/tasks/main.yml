@@ -1,0 +1,13 @@
+---
+- name: mkdir log...
+  command: mkdir -p log
+  args:
+    chdir: "{{ggApp_workspace}}/{{inventory_hostname}}"
+    creates: "{{ggApp_workspace}}/{{inventory_hostname}}/log"
+
+- name: build...
+  command: make linux
+  args:
+    chdir: "{{ggApp_workspace}}/{{inventory_hostname}}"
+    creates: "{{ggApp_workspace}}/{{inventory_hostname}}/skynet/skynet"
+

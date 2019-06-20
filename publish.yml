@@ -3,27 +3,34 @@
   gather_facts: no
   vars:
     hotfix: false
-    workdir: ~/ggApp
+    PACKAGE_PATH: /tmp
   tasks:
+    - shell: echo {{packname}} | grep -e gameserver -e loginserver
+      register: check_server_result
+      ignore_errors: True
+
     - name: copy...
       copy:
-          src: "/tmp/{{packname}}"
-          dest: "/tmp/{{packname}}"
+          src: "{{PACKAGE_PATH}}/{{packname}}"
+          dest: "{{PACKAGE_PATH}}/{{packname}}"
           mode: 0644
 
-    - name: try create {{workdir}}/{{inventory_hostname}}
-      command: mkdir -p {{workdir}}/{{inventory_hostname}}
+    - name: try create {{ggApp_workspace}}
+      command: mkdir -p {{ggApp_workspace}}
       args:
-          creates: "{{workdir}}/{{inventory_hostname}}"
+          creates: "{{ggApp_workspace}}"
 
-    - name: unarchive...
-      unarchive:
-          remote_src: yes
-          src: "/tmp/{{packname}}"
-          dest: "{{workdir}}/{{inventory_hostname}}"
+
+    - name: unarchive non server
+      shell: tar -izxvf {{PACKAGE_PATH}}/{{packname}} -C {{ggApp_workspace}}
+      when: check_server_result.rc != 0
+
+    - name: unarchive server
+      shell: mkdir -p {{ggApp_workspace}}/{{inventory_hostname}} && tar --strip-components=1 -izxvf {{PACKAGE_PATH}}/{{packname}} -C {{ggApp_workspace}}/{{inventory_hostname}}
+      when: check_server_result.rc == 0
 
     - name: hotfix...
-      shell: "tar -tf /tmp/{{packname}} | xargs sh gm.sh 0 hotfix"
+      shell: "tar -itf {{PACKAGE_PATH}}/{{packname}} | xargs sh gm.sh 0 hotfix"
       args:
-          chdir: "{{workdir}}/{{inventory_hostname}}/shell"
+          chdir: "{{ggApp_workspace}}/{{inventory_hostname}}/shell"
       when: hotfix

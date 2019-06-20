@@ -1,0 +1,21 @@
+# 外网测试环境服务器
+[all:vars]
+# you can redefine in host
+ansible_host=127.0.0.1
+ansible_ssh_port=22
+home=$HOME
+appName="ggApp"
+ggApp_url=https://github.com/sundream/ggApp
+ggApp_workspace="{{home}}/{{appName}}"
+gameserver_websocket_port=8887
+gameserver_tcp_port=8888
+gameserver_kcp_port=8889
+gameserver_debug_port=18888
+
+# hosts
+[hosts]
+gameserver_50 ansible_host=111.230.108.129
+
+# groups
+[gameserver]
+gameserver_50

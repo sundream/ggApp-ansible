@@ -1,6 +1,6 @@
 ---
 - name: link with {{inventory_hostname}}
-  command: ln -s gamesrv {{inventory_hostname}}
+  command: ln -s gameserver {{inventory_hostname}}
   args:
       chdir: "{{ggApp_workspace}}"
       creates: "{{ggApp_workspace}}/{{inventory_hostname}}"

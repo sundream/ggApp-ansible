@@ -36,6 +36,7 @@ pip install ansible
 * centos
 ```
 # 使用pip安装
+sudo yum install -y python-pip
 pip install ansible
 #pip install git+https://github.com/ansible/ansible.git@devel
 ```
@@ -52,22 +53,22 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@127.0.0.1  #中途需要输入用户密�
 cd ~ && git clone https://github.com/sundream/ggApp-ansible
 cd ~/ggApp-ansible
 # 提前安装所有依赖软件/库
-ansible-playbook -i hosts/gamesrv.local --limit gamesrv_1 install.yml -e home=$HOME -K
+ansible-playbook -i hosts/gameserver.local --limit gameserver_1 install.yml -e home=$HOME -K
 # 部署rediscluster
 ansible-playbook -i hosts/redis.local deploy_rediscluster.yml -e home=$HOME -K
 # 部署mongodbcluster
 ansible-playbook -i hosts/mongodb.local deploy_mongodbcluster.yml -e home=$HOME -K
-# 部署accountcenter
-ansible-playbook -i hosts/accountcenter.local --limit accountcenter deploy_accountcenter.yml -e home=$HOME -K
-# 部署gamesrv
-ansible-playbook -i hosts/gamesrv.local --limit gamesrv_1 deploy_gamesrv.yml -e home=$HOME -K
+# 部署loginserver
+ansible-playbook -i hosts/loginserver.local --limit loginserver deploy_loginserver.yml -e home=$HOME -K
+# 部署gameserver
+ansible-playbook -i hosts/gameserver.local --limit gameserver_1 deploy_gameserver.yml -e home=$HOME -K
 ```
 部署完后会在本机生成如下目录
 ```
 //ggApp工作目录
 ~/ggApp
-	+accountcenter		//账号中心
-	+gamesrv			//游戏服
+	+loginserver		//登录服
+	+gameserver			//游戏服
 	+client				//简易客户端
 	+robot				//机器人压测工具
 	+tools				//其他工具
@@ -75,14 +76,12 @@ ansible-playbook -i hosts/gamesrv.local --limit gamesrv_1 deploy_gamesrv.yml -e 
 //依赖软件源码目录
 /usr/local/src
 	+lua-5.3.5
-	+openresty-1.13.6.2
 	+luarocks-3.0.4
 	+mongodb-linux-x86_64-4.0.5
 	+redis-5.0.3
 
 //依赖软件二进制包目录
 /usr/local
-	+openresty
 	+bin
 		+lua
 		+luarocks
@@ -102,7 +101,6 @@ ansible-playbook -i hosts/gamesrv.local --limit gamesrv_1 deploy_gamesrv.yml -e 
 redis-server -v
 mongod --version
 lua -v
-openresty -v
 luarocks --version
 ```
 
@@ -110,7 +108,7 @@ luarocks --version
 
 管理
 ====
-* 管理redis独立节点(账号中心用)
+* 管理redis独立节点(登录服用)
 ```
 # 启动
 ansible redis -i hosts/redis.local -m shell -a "redis-server {{redis_workspace}}/{{inventory_hostname}}/redis.conf"
@@ -130,7 +128,6 @@ ansible rediscluster -i hosts/redis.local -m shell -a "redis-cli -p {{redis_port
 # 查看启动状态
 ansible rediscluster -i hosts/redis.local -m shell -a "cat {{redis_workspace}}/{{inventory_hostname}}/redis.pid | xargs ps -cp"
 ```
-rediscluster正常启动后进程信息大致如[redis_process.txt](https://github.com/sundream/ggApp-ansible/blob/master/redis_process.txt)
 
 * 管理mongodbcluster
 ```
@@ -159,33 +156,37 @@ ansible mongodbcluster -i hosts/mongodb.local -m shell -a "cat {{mongodb_workspa
 # 查看启动状态
 ansible mongodbcluster -i hosts/mongodb.local -m shell -a "cat {{mongodb_workspace}}/{{inventory_hostname}}/mongodb.pid | xargs ps -cp"
 ```
-mongodbcluster正常启动后进程信息大致如[mongodb_process.txt](https://github.com/sundream/ggApp-ansible/blob/master/mongodb_process.txt)
 
-* 管理accountcenter
+* 管理loginserver
 ```
 # 启动
-ansible accountcenter -i hosts/accountcenter.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . &"
-# 导入游戏服务器信息
-ansible accountcenter -i hosts/accountcenter.local -m shell -a "cd ~/ggApp/tools/script && python import_servers.py --appid=appid --config=servers.config"
+ansible loginserver -i hosts/loginserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh start.sh"
 # 关闭
-ansible accountcenter -i hosts/accountcenter.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s stop"
-# 重新加载
-ansible accountcenter -i hosts/accountcenter.local -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
-```
-* 管理gamesrv
-```
-# 启动
-ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh start.sh"
-# 关闭
-ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh stop.sh"
+ansible loginserver -i hosts/loginserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh stop.sh"
 # 重新启动
-ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh restart.sh"
+ansible loginserver -i hosts/loginserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh restart.sh"
 # 强制关闭(非安全关闭)
-ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh kill.sh"
+ansible loginserver -i hosts/loginserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh kill.sh"
 # 查看启动状态
-ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh status.sh"
+ansible loginserver -i hosts/loginserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh status.sh"
 # 执行gm
-ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hostname}}/shell && sh gm.sh 0 exec 'return 1+1'"
+ansible loginserver -i hosts/loginserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh gm.sh 0 exec 'return 1+1'"
+
+```
+* 管理gameserver
+```
+# 启动
+ansible gameserver_1 -i hosts/gameserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh start.sh"
+# 关闭
+ansible gameserver_1 -i hosts/gameserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh stop.sh"
+# 重新启动
+ansible gameserver_1 -i hosts/gameserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh restart.sh"
+# 强制关闭(非安全关闭)
+ansible gameserver_1 -i hosts/gameserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh kill.sh"
+# 查看启动状态
+ansible gameserver_1 -i hosts/gameserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh status.sh"
+# 执行gm
+ansible gameserver_1 -i hosts/gameserver.local -m shell -a "cd {{ggApp_workspace}}/{{inventory_hostname}}/shell && sh gm.sh 0 exec 'return 1+1'"
 ```
 
 打包和发布
@@ -194,41 +195,43 @@ ansible gamesrv_1 -i hosts/gamesrv.local -m shell -a "cd ~/ggApp/{{inventory_hos
 # 打包前先更新代码！！！
 # 打整包
 # 查看帮助
-sh shell/pack.sh
-# 对账号中心打整包
-sh shell/pack.sh ~/ggApp/accountcenter
-# 执行shell/pack.sh后会提示生成的包名
-# 发布到账号中心
-ansible-playbook -i hosts/accountcenter.test --limit accountcenter publish.yml -e packname=包名
+cd shell
+sh pack.sh
+# 对登录服打整包
+sh pack.sh ~/ggApp/loginserver
+# 执行pack.sh后会提示生成的包名
+# 发布到外网登录服
+ansible-playbook -i hosts/loginserver.test --limit loginserver publish.yml -e appName=ggApp -e packname=包名
 
 # 对游戏服打整包
-sh shell/pack.sh ~/ggApp/gamesrv
-# 执行shell/pack.sh后会提示生成的包名
+sh pack.sh ~/ggApp/gameserver
+# 执行pack.sh后会提示生成的包名
 # 发布到所有游戏服
-ansible-playbook -i hosts/gamesrv.test --limit gamesrv publish.yml -e packname=包名
-# 发布到gamesrv_50,gamesrv_51服
-ansible-playbook -i hosts/gamesrv.test --limit gamesrv_50,gamesrv_51 publish.yml -e packname=包名
+ansible-playbook -i hosts/gameserver.test --limit gameserver publish.yml -e appName=ggApp -e packname=包名
+# 发布到gameserver_50
+ansible-playbook -i hosts/gameserver.test --limit gameserver_50 publish.yml -e appName=ggApp -e packname=包名
+# 发布到登录服
+ansible-playbook -i hosts/loginserver.test --limit loginserver publish.yml -e appName=ggApp -e packname=包名
 
 # 打补丁包
 # 查看帮助
-sh shell/packpatch.sh
+cd shell
+sh packpatch.sh
 # 仓库是git管理
 # 对游戏服最近2次提交生成补丁包
-sh shell/packpatch.sh ~/ggApp/gamesrv HEAD~2..HEAD
+sh packpatch.sh ~/ggApp/gameserver HEAD~2..HEAD
 # 对账号中心最近2次提交生成补丁包
-sh shell/packpatch.sh ~/ggApp/accountcenter HEAD~2..HEAD
+sh packpatch.sh ~/ggApp/loginserver HEAD~2..HEAD
 # 仓库是svn管理
 # 对游戏服[530,532]之间提交生成补丁包
-sh shell/packpatch.sh -s ~/ggApp/gamesrv 530:532
+sh packpatch.sh -s ~/ggApp/gameserver 530:532
 # 对账号中心[530,532]之间提交生成补丁包
-sh shell/packpatch.sh -s ~/ggApp/accountcenter 530:532
-# 执行shell/packpatch.sh后会提示生成的补丁包名
+sh packpatch.sh -s ~/ggApp/loginserver 530:532
+# 执行packpatch.sh后会提示生成的补丁包名
 # 向游戏服发布补丁包并自动热更
-ansible-playbook -i hosts/gamesrv.test --limit gamesrv publish.yml -e hotfix=true -e packname=补丁包名
-# 向账号中心发布补丁包
-ansible-playbook -i hosts/accountcenter.test --limit accountcenter publish.yml -e packname=补丁包名 
-# 让账号中心热更
-ansible accountcenter -i hosts/accountcenter.test -m shell -a "cd ~/ggApp/accountcenter && /usr/local/openresty/bin/openresty -c conf/account.conf -p . -s reload"
+ansible-playbook -i hosts/gameserver.test --limit gameserver publish.yml -e appName=ggApp -e hotfix=true -e packname=补丁包名
+# 向登录服发布补丁包并自动热更
+ansible-playbook -i hosts/loginserver.test --limit loginserver publish.yml -e appName=ggApp -e hotfix=true -e packname=补丁包名 
 ```
 
 [Back to TOC](#table-of-contents)

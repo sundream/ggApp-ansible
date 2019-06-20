@@ -1,0 +1,6 @@
+---
+- hosts: loginserver
+  roles:
+      - loginserver
+  tags:
+      - loginserver

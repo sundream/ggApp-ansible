@@ -1,6 +1,0 @@
----
-- hosts: accountcenter
-  roles:
-      - accountcenter
-  tags:
-      - accountcenter
